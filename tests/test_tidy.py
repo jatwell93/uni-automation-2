@@ -117,6 +117,27 @@ class TidyTests(unittest.TestCase):
         items = pieces_for(tidy(source, TidyOptions()))
         self.assertEqual([item["kind"] for item in items], ["body", "body", "list_item"])
 
+    def test_list_item_indented_continuation_stays_one_segment(self) -> None:
+        source = "- First line.\n  Wrapped continuation.\n- Second.\n"
+        result = tidy(source, TidyOptions())
+        self.assertEqual([s.kind for s in result.segments], ["list_item", "list_item"])
+        self.assertIn("Wrapped continuation", result.segments[0].text)
+        self.assertNotIn("Wrapped continuation", result.segments[1].text)
+
+    def test_list_item_lazy_wrapped_continuation(self) -> None:
+        source = "- First line.\nWrapped without indent.\n\nNext paragraph.\n"
+        result = tidy(source, TidyOptions())
+        kinds = [s.kind for s in result.segments]
+        self.assertEqual(kinds[0], "list_item")
+        self.assertIn("Wrapped without indent", result.segments[0].text)
+
+    def test_bold_label_between_lists_is_not_continuation(self) -> None:
+        source = "- One.\n**Operating constraints:**\n- Two.\n"
+        result = tidy(source, TidyOptions())
+        kinds = [s.kind for s in result.segments]
+        self.assertEqual(kinds, ["list_item", "body", "list_item"])
+        self.assertIn("Operating constraints", result.segments[1].text)
+
     def test_yaml_front_matter_is_removed(self) -> None:
         text = spoken("---\ntitle: Notes\n---\nThe body.\n")
         self.assertIn("The body.", text)

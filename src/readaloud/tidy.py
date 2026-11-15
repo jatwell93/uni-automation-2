@@ -42,6 +42,8 @@ _RULE = re.compile(r"^\s*([-*_])\1{2,}\s*$")
 _BOLD = re.compile(r"(\*\*|__)(.*?)\1")
 _ITALIC = re.compile(r"(\*|_)(?=\S)(.+?)(?<=\S)\1")
 _HYPHEN_BREAK = re.compile(r"(\w)-\n(\w)")
+_INDENTED_LINE = re.compile(r"^\s{2,}\S")
+_STANDALONE_BOLD = re.compile(r"^\*\*.+\*\*:?\s*$")
 
 
 @dataclass
@@ -222,6 +224,41 @@ def tidy(text: str, options: TidyOptions | None = None) -> TidyResult:
     segments: list[Segment] = []
     paragraph: list[str] = []
     table: list[str] = []
+    list_item_lines: list[str] | None = None
+    list_item_number: str | None = None
+
+    def flush_list_item() -> None:
+        nonlocal list_item_lines, list_item_number
+        if not list_item_lines:
+            return
+        joined = " ".join(list_item_lines)
+        joined = re.sub(r"[ \t]+", " ", _strip_emphasis(joined)).strip()
+        number = list_item_number
+        list_item_lines = None
+        list_item_number = None
+        if not joined:
+            return
+        prefix = f"Item {number}. " if number else ""
+        segments.append(Segment(_ensure_sentence(prefix + joined), "list_item"))
+
+    def list_continuation(line: str, without_quote: str) -> bool:
+        if list_item_lines is None:
+            return False
+        if _HEADING.match(line) or _TABLE_LINE.match(line) or _TABLE_RULE.match(line):
+            return False
+        if _PAGE_LINE.match(line) or _RULE.match(line):
+            return False
+        if _BULLET.match(without_quote) or _ORDERED.match(without_quote):
+            return False
+        cleaned = without_quote.strip()
+        if not cleaned:
+            return False
+        if _STANDALONE_BOLD.match(cleaned):
+            return False
+        if _INDENTED_LINE.match(line):
+            return True
+        # Lazy continuation: hard-wrapped line with no blank line after the list marker line.
+        return True
 
     def flush_paragraph() -> None:
         if not paragraph:
@@ -258,6 +295,7 @@ def tidy(text: str, options: TidyOptions | None = None) -> TidyResult:
         code_match = re.fullmatch(r"\s*\ue000CODE(\d+)\ue001\s*", line)
         if code_match:
             flush_paragraph()
+            flush_list_item()
             flush_table()
             block = code_blocks[int(code_match.group(1))]
             if options.code == "omit":
@@ -269,20 +307,24 @@ def tidy(text: str, options: TidyOptions | None = None) -> TidyResult:
 
         if _TABLE_LINE.match(line) or _TABLE_RULE.match(line):
             flush_paragraph()
+            flush_list_item()
             table.append(line)
             continue
         flush_table()
 
         if not line.strip():
             flush_paragraph()
+            flush_list_item()
             continue
         if _PAGE_LINE.match(line) or _RULE.match(line):
             flush_paragraph()
+            flush_list_item()
             continue
 
         heading = _HEADING.match(line)
         if heading:
             flush_paragraph()
+            flush_list_item()
             words = _strip_emphasis(heading.group(2)).strip()
             words = re.sub(r"[ \t]+", " ", words)
             if words:
@@ -294,20 +336,30 @@ def tidy(text: str, options: TidyOptions | None = None) -> TidyResult:
         ordered = _ORDERED.match(without_quote)
         if bullet or ordered:
             flush_paragraph()
+            flush_list_item()
             cleaned = _BULLET.sub("", without_quote)
             cleaned = _ORDERED.sub("", cleaned).strip()
             cleaned = _strip_emphasis(cleaned)
             if not cleaned:
                 continue
-            prefix = f"Item {ordered.group(1)}. " if ordered else ""
-            segments.append(Segment(_ensure_sentence(prefix + cleaned), "list_item"))
+            list_item_number = ordered.group(1) if ordered else None
+            list_item_lines = [cleaned]
+            continue
+
+        if list_continuation(line, without_quote):
+            continuation = _QUOTE.sub("", line).strip() if _INDENTED_LINE.match(line) else without_quote.strip()
+            continuation = _strip_emphasis(continuation)
+            if continuation:
+                list_item_lines.append(continuation)
             continue
 
         cleaned = without_quote.strip()
         if cleaned:
+            flush_list_item()
             paragraph.append(cleaned)
 
     flush_paragraph()
+    flush_list_item()
     flush_table()
 
     spoken_segments: list[Segment] = []

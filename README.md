@@ -71,7 +71,7 @@ British voices (`bf_` and `bm_`) use the `en-gb` phonemizer. The others use `en-
 The rules are fixed. Nothing paraphrases the page. Each run prints characters in, characters spoken, the percent kept, and how many math spans, URLs, and code blocks changed.
 
 - Heading words are spoken and become chapters. The `#` marks are not spoken.
-- List items are their own segments; ordered lists are prefixed with `Item N.` Audio pauses slightly longer between list lines than between sentences in a paragraph.
+- List items are their own segments; ordered lists are prefixed with `Item N.` Indented or hard-wrapped continuation lines stay in the same item. Audio pauses slightly longer between list lines than between sentences in a paragraph.
 - Tables: default `speak` flattens the table to one paragraph. `--tables rows` speaks each row with `Header:` / `Row:` labels and a longer pause between rows.
 - Link text is kept. A bare URL or email is removed.
 - A line that is only a page number is removed.
