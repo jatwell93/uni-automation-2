@@ -2,6 +2,7 @@ import os
 import unittest
 from pathlib import Path
 
+from readaloud.cli import pieces_for
 from readaloud.mux import ChapterMark, escape_ffmetadata, ffmetadata
 from readaloud.speak import speech_pieces, split_long
 from readaloud.tidy import TidyOptions, load_pronunciations, repo_root, tidy
@@ -101,6 +102,20 @@ class TidyTests(unittest.TestCase):
         result = tidy(source, TidyOptions())
         self.assertEqual([s.kind for s in result.segments], ["list_item", "list_item"])
         self.assertNotIn("Alpha. Beta.", result.spoken)
+
+    def test_list_item_pause_applies_only_after_full_segment(self) -> None:
+        source = "- First point. Second sentence.\n"
+        result = tidy(source, TidyOptions())
+        items = pieces_for(result)
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[0]["kind"], "body")
+        self.assertEqual(items[1]["kind"], "list_item")
+
+    def test_ordered_list_item_only_last_piece_gets_list_pause_kind(self) -> None:
+        # "Item 1." is its own sentence after split_sentences; interior pieces stay body.
+        source = "1. First point. Second sentence.\n"
+        items = pieces_for(tidy(source, TidyOptions()))
+        self.assertEqual([item["kind"] for item in items], ["body", "body", "list_item"])
 
     def test_yaml_front_matter_is_removed(self) -> None:
         text = spoken("---\ntitle: Notes\n---\nThe body.\n")

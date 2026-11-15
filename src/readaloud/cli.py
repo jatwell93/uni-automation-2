@@ -191,9 +191,11 @@ def pieces_for(result: TidyResult) -> list[dict[str, str]]:
         parts = speech_pieces(segment.text)
         for index, piece in enumerate(parts):
             opens_chapter = index == 0 and segment.kind == "heading"
+            closes_segment = index == len(parts) - 1
             if opens_chapter:
                 kind = "heading"
-            elif segment.kind in ("list_item", "table_row"):
+            elif closes_segment and segment.kind in ("list_item", "table_row"):
+                # Interior sentence pieces use body pauses; list/table pause only after the segment.
                 kind = segment.kind
             else:
                 kind = "body"
