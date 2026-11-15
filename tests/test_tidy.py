@@ -1,3 +1,4 @@
+import os
 import unittest
 from pathlib import Path
 
@@ -47,7 +48,8 @@ class TidyTests(unittest.TestCase):
         )
         self.assertIn("the paper", result.spoken)
         self.assertNotIn("https://", result.spoken)
-        self.assertGreaterEqual(result.stats.urls_removed, 2)
+        self.assertGreaterEqual(result.stats.link_urls_stripped, 1)
+        self.assertGreaterEqual(result.stats.urls_removed, 1)
 
     def test_line_break_hyphen_joins_and_real_hyphen_stays(self) -> None:
         self.assertIn("condition", spoken("condi-\ntion holds.\n"))
@@ -91,6 +93,11 @@ class TidyTests(unittest.TestCase):
         self.assertGreater(result.stats.percent_kept, 0)
         self.assertLessEqual(result.stats.percent_kept, 100)
 
+    def test_repo_root_honors_readaloud_home(self) -> None:
+        expected = repo_root()
+        with unittest.mock.patch.dict(os.environ, {"READALOUD_HOME": str(expected)}):
+            self.assertEqual(repo_root(), expected.resolve())
+
     def test_pronunciation_file_replaces_terms(self) -> None:
         mapping = load_pronunciations(repo_root() / "pronunciations.txt")
         result = tidy("See Fig. 1, e.g. this one.\n", TidyOptions(pronunciations=mapping))
@@ -111,6 +118,18 @@ class SpeechSplitTests(unittest.TestCase):
         chunks = split_long("alpha beta gamma delta", 12)
         self.assertTrue(all(len(chunk) <= 12 or " " not in chunk for chunk in chunks))
         self.assertEqual(" ".join(chunks), "alpha beta gamma delta")
+
+    def test_abbreviations_do_not_split_sentences(self) -> None:
+        pieces = speech_pieces("See Dr. Smith in Ch. 2.")
+        self.assertEqual(pieces, ["See Dr. Smith in Ch. 2."])
+        pieces = speech_pieces("Use e.g. this form.")
+        self.assertEqual(pieces, ["Use e.g. this form."])
+
+    def test_split_long_pathological_dense_text(self) -> None:
+        dense = " ".join("0123456789" for _ in range(80))
+        chunks = split_long(dense, 400)
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(len(chunk) <= 400 for chunk in chunks))
 
 
 class ChapterMetadataTests(unittest.TestCase):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import unicodedata
 from dataclasses import dataclass, field
@@ -58,6 +59,7 @@ class TidyStats:
     chars_out: int = 0
     math_spans: int = 0
     urls_removed: int = 0
+    link_urls_stripped: int = 0
     emails_removed: int = 0
     code_blocks_omitted: int = 0
 
@@ -83,9 +85,14 @@ class TidyResult:
 
 
 def repo_root() -> Path:
+    home = os.environ.get("READALOUD_HOME")
+    if home:
+        path = Path(home).expanduser().resolve()
+        if (path / "pronunciations.txt").is_file():
+            return path
     here = Path(__file__).resolve()
     for parent in here.parents:
-        if (parent / "pronunciations.txt").is_file() and (parent / "install.sh").is_file():
+        if (parent / "pronunciations.txt").is_file() and (parent / "pyproject.toml").is_file():
             return parent
     return Path.cwd()
 
@@ -187,7 +194,7 @@ def tidy(text: str, options: TidyOptions | None = None) -> TidyResult:
     working = _IMAGE.sub(_image, working)
 
     def _link(match: re.Match[str]) -> str:
-        stats.urls_removed += 1
+        stats.link_urls_stripped += 1
         return match.group(1)
 
     working = _LINK.sub(_link, working)
