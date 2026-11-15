@@ -22,6 +22,14 @@ On Arch, install `espeak-ng`, `ffmpeg`, and Python 3.12 yourself, then rerun `./
 
 ## Daily commands
 
+For a guided menu (setup, plans, PDFs, faster Piper runs):
+
+```bash
+.venv/bin/python -m readaloud --helper
+```
+
+Option **7** in the menu prints the same cheat sheet without prompts. In a non-interactive terminal, `--helper` only prints that sheet.
+
 ```bash
 .venv/bin/python -m readaloud reading.txt
 .venv/bin/python -m readaloud notes.md
