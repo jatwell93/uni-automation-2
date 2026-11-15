@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -68,7 +70,15 @@ def parser() -> argparse.ArgumentParser:
     argument_parser.add_argument("--code", choices=("speak", "omit"), default="speak")
     argument_parser.add_argument("--tables", choices=("speak", "skip"), default="speak")
     argument_parser.add_argument(
-        "--citations", choices=("keep", "numeric", "all"), default="keep"
+        "--citations",
+        choices=("keep", "numeric", "all"),
+        default="keep",
+        help="keep leaves citations; all also drops (Author, 2019) parentheticals and may remove other prose in notes",
+    )
+    argument_parser.add_argument(
+        "--allow-partial-pdf",
+        action="store_true",
+        help="Continue when some PDF pages lack a text layer; writes work/<name>/pdf-skipped-pages.txt",
     )
     argument_parser.add_argument(
         "--pdf-engine", choices=("inspector", "marker"), default="inspector"
@@ -109,6 +119,45 @@ def tidy_options(args: argparse.Namespace) -> TidyOptions:
     )
 
 
+def options_fingerprint(
+    engine_name: str,
+    voice: str,
+    options: TidyOptions,
+    pronunciations_path: Path | None,
+) -> str:
+    payload: dict[str, object] = {
+        "engine": engine_name,
+        "voice": voice,
+        "math": options.math,
+        "code": options.code,
+        "tables": options.tables,
+        "citations": options.citations,
+        "pronunciation_keys": sorted(options.pronunciations.keys()),
+    }
+    if pronunciations_path and pronunciations_path.is_file():
+        payload["pronunciations_file"] = str(pronunciations_path.resolve())
+        payload["pronunciations_mtime"] = pronunciations_path.stat().st_mtime
+    digest = hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+    return digest[:16]
+
+
+def load_manifest(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        print(f"warning: ignoring corrupt manifest {path}", file=sys.stderr)
+        return {}
+
+
+def publish_library_file(source: Path, destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = destination.with_suffix(destination.suffix + ".tmp")
+    shutil.copy2(source, temporary)
+    temporary.replace(destination)
+
+
 def collect_inputs(value: str | None) -> list[Path] | None:
     if value is None or value == "-":
         return None
@@ -145,14 +194,23 @@ def pieces_for(result: TidyResult) -> list[dict[str, str]]:
     return items
 
 
-def synthesize_items(engine, items: list[dict[str, str]], work: Path, engine_name: str, voice: str) -> float:
+def synthesize_items(
+    engine,
+    items: list[dict[str, str]],
+    work: Path,
+    engine_name: str,
+    voice: str,
+    fingerprint: str,
+) -> float:
     work.mkdir(parents=True, exist_ok=True)
     manifest_path = work / "manifest.json"
-    previous: dict = {}
-    if manifest_path.is_file():
-        previous = json.loads(manifest_path.read_text(encoding="utf-8"))
+    previous = load_manifest(manifest_path)
     previous_items = previous.get("items") or []
-    reusable = previous.get("engine") == engine_name and previous.get("voice") == voice
+    reusable = (
+        previous.get("engine") == engine_name
+        and previous.get("voice") == voice
+        and previous.get("fingerprint") == fingerprint
+    )
     started = time.perf_counter()
     completed: list[dict[str, str]] = []
     for index, item in enumerate(items):
@@ -169,7 +227,12 @@ def synthesize_items(engine, items: list[dict[str, str]], work: Path, engine_nam
         completed.append(item)
         manifest_path.write_text(
             json.dumps(
-                {"engine": engine_name, "voice": voice, "items": completed},
+                {
+                    "engine": engine_name,
+                    "voice": voice,
+                    "fingerprint": fingerprint,
+                    "items": completed,
+                },
                 indent=2,
             ),
             encoding="utf-8",
@@ -227,7 +290,8 @@ def print_report(result: TidyResult, extract_s: float, synth_s: float) -> None:
         f"chars {stats.chars_in} -> {stats.chars_out} ({stats.percent_kept}% kept)"
     )
     print(f"math spans replaced: {stats.math_spans}")
-    print(f"urls removed: {stats.urls_removed}")
+    print(f"link URLs stripped: {stats.link_urls_stripped}")
+    print(f"bare URLs removed: {stats.urls_removed}")
     if stats.emails_removed:
         print(f"emails removed: {stats.emails_removed}")
     print(f"code blocks omitted: {stats.code_blocks_omitted}")
@@ -245,29 +309,42 @@ def convert_text(
     voice: str,
     extract_s: float,
 ) -> None:
-    result = tidy(text, tidy_options(args))
-    output_dir = args.output
-    output_dir.mkdir(parents=True, exist_ok=True)
-    extracted_path = output_dir / f"{stem}.extracted.md"
-    spoken_path = output_dir / f"{stem}.spoken.txt"
-    audio_path = output_dir / f"{stem}.m4b"
-    extracted_path.write_text(text if text.endswith("\n") else text + "\n", encoding="utf-8")
-    spoken_path.write_text(result.spoken, encoding="utf-8")
-    items = pieces_for(result)
+    options = tidy_options(args)
+    result = tidy(text, options)
     work = args.work / stem
-    synth_s = synthesize_items(engine, items, work, args.engine, voice)
-    build_audio(items, work, audio_path, stem, args.normalize)
+    work.mkdir(parents=True, exist_ok=True)
+    extracted_work = work / "extracted.md"
+    spoken_work = work / "spoken.txt"
+    audio_work = work / f"{stem}.m4b"
+    normalized = text if text.endswith("\n") else text + "\n"
+    extracted_work.write_text(normalized, encoding="utf-8")
+    spoken_work.write_text(result.spoken, encoding="utf-8")
+    items = pieces_for(result)
+    fingerprint = options_fingerprint(args.engine, voice, options, args.pronunciations)
+    synth_s = synthesize_items(engine, items, work, args.engine, voice, fingerprint)
+    build_audio(items, work, audio_work, stem, args.normalize)
+    output_dir = args.output
+    publish_library_file(extracted_work, output_dir / f"{stem}.extracted.md")
+    publish_library_file(spoken_work, output_dir / f"{stem}.spoken.txt")
+    publish_library_file(audio_work, output_dir / f"{stem}.m4b")
     print_report(result, extract_s, synth_s)
-    print(f"wrote {audio_path}")
+    print(f"wrote {output_dir / f'{stem}.m4b'}")
 
 
 def convert_path(path: Path, args: argparse.Namespace, engine, voice: str) -> None:
     if not path.is_file():
         raise ReadAloudError(f"Not a file: {path}")
+    stem = safe_stem(path.stem)
+    work = args.work / stem
     started = time.perf_counter()
-    text = extract_file(path, args.pdf_engine)
+    text = extract_file(
+        path,
+        args.pdf_engine,
+        allow_partial_pdf=args.allow_partial_pdf,
+        skipped_pages_path=work / "pdf-skipped-pages.txt",
+    )
     extract_s = time.perf_counter() - started
-    convert_text(text, safe_stem(path.stem), args, engine, voice, extract_s)
+    convert_text(text, stem, args, engine, voice, extract_s)
 
 
 def run_benchmark(args: argparse.Namespace, root: Path) -> int:

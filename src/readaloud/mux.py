@@ -7,6 +7,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from readaloud.speak import FFMPEG_MUX_TIMEOUT_S
+
 
 @dataclass
 class ChapterMark:
@@ -100,7 +102,13 @@ def mux_m4b(
     if normalize:
         command.extend(["-af", "loudnorm"])
     command.append(str(output))
-    completed = subprocess.run(command, check=False, capture_output=True, text=True)
+    completed = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=FFMPEG_MUX_TIMEOUT_S,
+    )
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout or "").strip().splitlines()
         tail = detail[-1] if detail else "ffmpeg failed"

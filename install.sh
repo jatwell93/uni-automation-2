@@ -2,7 +2,7 @@
 # Set up the desktop: system packages, a Python 3.12 venv, and the package.
 # Does not download Kokoro weights. Run that next with --fetch-models.
 set -euo pipefail
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit 1
 
 install_packages() {
   if ! command -v apt-get >/dev/null 2>&1; then
