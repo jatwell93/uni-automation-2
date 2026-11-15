@@ -428,9 +428,9 @@ def main(argv: list[str] | None = None) -> int:
     inputs = collect_inputs(args.input)
     if inputs is None:
         if args.input is None and sys.stdin.isatty():
-            argument_parser.print_help()
-            print("\nTip: .venv/bin/python -m readaloud --helper", file=sys.stderr)
-            return 2
+            from readaloud.helper import run_helper
+
+            return run_helper()
         text = sys.stdin.read()
         engine, voice = make_engine(args, root)
         try:

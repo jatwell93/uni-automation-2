@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import shlex
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 from readaloud.tidy import repo_root
@@ -14,21 +16,61 @@ Readaloud helper — pick a task (enter a number, or q to quit)
   1  First-time setup       download Kokoro weights, then benchmark this CPU
   2  Plan or markdown       Piper engine, tables read row-by-row (dense specs)
   3  Notes or essay         default voice; Kokoro (use 4 if benchmark was slow)
-  4  Same file, faster CPU  Piper engine on your last path (or enter a new one)
+  4  Faster Piper run       Piper on the last path you used (Enter to reuse)
   5  Born-digital PDF       text-layer extraction (not scanned pages)
   6  Folder of readings     every .txt / .md / .pdf in one directory
   7  Show cheat sheet       copy-paste commands, no prompts
   q  Quit
 """
 
+LAST_PATH_NAME = "helper-last-path.txt"
+
 
 def python_invocation() -> list[str]:
     return [sys.executable, "-m", "readaloud"]
 
 
+def format_argv_display(argv: list[str]) -> str:
+    """Shell-safe string for copy-paste (execution uses argv list, not the shell)."""
+    return shlex.join(argv)
+
+
+def last_path_file() -> Path:
+    return repo_root() / "work" / LAST_PATH_NAME
+
+
+def load_last_path() -> Path | None:
+    path = last_path_file()
+    if not path.is_file():
+        return None
+    text = path.read_text(encoding="utf-8").strip()
+    if not text:
+        return None
+    resolved = Path(text).expanduser()
+    if resolved.is_file() or resolved.is_dir():
+        return resolved.resolve()
+    return None
+
+
+def save_last_path(path: Path) -> None:
+    target = last_path_file()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(str(path.resolve()) + "\n", encoding="utf-8")
+
+
+@dataclass
+class HelperSession:
+    last_path: Path | None = None
+
+    def remember(self, path: Path) -> None:
+        resolved = path.resolve()
+        self.last_path = resolved
+        save_last_path(resolved)
+
+
 def cheat_sheet(home: Path | None = None) -> str:
     root = home or repo_root()
-    py = f"{sys.executable} -m readaloud"
+    py = format_argv_display(python_invocation())
     lines = [
         f"Run from the repo (or set READALOUD_HOME={root}).",
         "",
@@ -52,7 +94,7 @@ def cheat_sheet(home: Path | None = None) -> str:
         "  --code omit             skip ASCII diagrams in fenced blocks",
         "  --allow-partial-pdf     mixed PDFs; skipped pages listed in work/",
         "",
-        "Guided menu:",
+        "Guided menu (also runs when you type readaloud with no file):",
         f"  {py} --helper",
     ]
     return "\n".join(lines) + "\n"
@@ -79,32 +121,36 @@ def _ask_yes_no(prompt: str, *, default_yes: bool = True) -> bool:
     return reply in {"y", "yes"}
 
 
-def _ask_existing_file(label: str) -> Path:
+def _ask_existing_file(label: str, *, default: str = "") -> Path:
     while True:
-        raw = _ask(label)
+        raw = _ask(label, default)
         if not raw:
             print("  A file path is required.")
+            default = ""
             continue
         path = Path(raw).expanduser().resolve()
         if path.is_file():
             return path
         print(f"  Not found: {path}")
+        default = ""
 
 
-def _ask_existing_path(label: str) -> Path:
+def _ask_existing_path(label: str, *, default: str = "") -> Path:
     while True:
-        raw = _ask(label)
+        raw = _ask(label, default)
         if not raw:
             print("  A path is required.")
+            default = ""
             continue
         path = Path(raw).expanduser().resolve()
         if path.is_file() or path.is_dir():
             return path
         print(f"  Not found: {path}")
+        default = ""
 
 
 def run_command(argv: list[str]) -> int:
-    print(f"\n→ {' '.join(argv)}\n")
+    print(f"\n→ {format_argv_display(argv)}\n")
     if not _ask_yes_no("Run this now?"):
         print("Cancelled. Run the line above when ready.")
         return 0
@@ -120,11 +166,12 @@ def _setup_sequence() -> int:
     return run_command(base + ["--benchmark"])
 
 
-def _convert_with_flags(path: Path, extra: list[str]) -> int:
+def _convert_with_flags(session: HelperSession, path: Path, extra: list[str]) -> int:
+    session.remember(path)
     return run_command(python_invocation() + extra + [str(path)])
 
 
-def dispatch(choice: str) -> int | None:
+def dispatch(choice: str, session: HelperSession) -> int | None:
     """Return exit code, or None to show the menu again."""
     if choice in {"q", "quit", "exit"}:
         return 0
@@ -139,18 +186,20 @@ def dispatch(choice: str) -> int | None:
         if _ask_yes_no("Also use --math keep (safer for A$ amounts)?", default_yes=True):
             extras.append("--math")
             extras.append("keep")
-        return _convert_with_flags(path, extras)
+        return _convert_with_flags(session, path, extras)
     if choice == "3":
         path = _ask_existing_file("Path to .txt, .md, or .pdf")
-        return _convert_with_flags(path, [])
+        return _convert_with_flags(session, path, [])
     if choice == "4":
-        path = _ask_existing_path("Path to file or folder")
-        return _convert_with_flags(path, ["--engine", "piper"])
+        default = str(session.last_path) if session.last_path else ""
+        path = _ask_existing_path("Path to file or folder (Enter = last path)", default=default)
+        return _convert_with_flags(session, path, ["--engine", "piper"])
     if choice == "5":
         path = _ask_existing_file("Path to born-digital .pdf")
-        return _convert_with_flags(path, [])
+        return _convert_with_flags(session, path, [])
     if choice == "6":
         path = _ask_existing_path("Folder containing readings")
+        session.remember(path)
         engine = []
         if _ask_yes_no("Use Piper for the batch?", default_yes=False):
             engine = ["--engine", "piper"]
@@ -164,6 +213,9 @@ def run_helper() -> int:
         print(cheat_sheet())
         print("(Non-interactive terminal: printed cheat sheet only.)", file=sys.stderr)
         return 0
+    session = HelperSession(last_path=load_last_path())
+    if session.last_path:
+        print(f"Last path: {session.last_path}\n")
     print("Tip: long jobs are silent until the end; watch work/<name>/manifest.json for progress.\n")
     while True:
         print(MENU)
@@ -172,7 +224,7 @@ def run_helper() -> int:
         except (EOFError, KeyboardInterrupt):
             print()
             return 0
-        result = dispatch(choice)
+        result = dispatch(choice, session)
         if result is not None:
             return result
         print()
