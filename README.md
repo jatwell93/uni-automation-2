@@ -22,6 +22,14 @@ On Arch, install `espeak-ng`, `ffmpeg`, and Python 3.12 yourself, then rerun `./
 
 ## Daily commands
 
+With no file argument, the guided menu opens automatically (same as `--helper`):
+
+```bash
+.venv/bin/python -m readaloud
+```
+
+Option **7** in the menu prints a copy-paste cheat sheet. The last file or folder you used is stored in `work/helper-last-path.txt` for option **4**. In a non-interactive terminal, `--helper` (or bare `readaloud` with no file) prints that sheet only.
+
 ```bash
 .venv/bin/python -m readaloud reading.txt
 .venv/bin/python -m readaloud notes.md

@@ -106,6 +106,11 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Time about 1 KB of plain text after a warmup sentence",
     )
+    argument_parser.add_argument(
+        "--helper",
+        action="store_true",
+        help="Interactive menu and cheat sheet for common commands",
+    )
     return argument_parser
 
 
@@ -409,6 +414,10 @@ def main(argv: list[str] | None = None) -> int:
     argument_parser = parser()
     args = argument_parser.parse_args(argv)
     root = repo_root()
+    if args.helper:
+        from readaloud.helper import run_helper
+
+        return run_helper()
     if args.fetch_models:
         fetch_models(root / "models")
         print("Weights are in models/. Later runs stay offline.")
@@ -419,8 +428,9 @@ def main(argv: list[str] | None = None) -> int:
     inputs = collect_inputs(args.input)
     if inputs is None:
         if args.input is None and sys.stdin.isatty():
-            argument_parser.print_help()
-            return 2
+            from readaloud.helper import run_helper
+
+            return run_helper()
         text = sys.stdin.read()
         engine, voice = make_engine(args, root)
         try:
