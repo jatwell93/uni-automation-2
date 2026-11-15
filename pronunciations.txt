@@ -1,0 +1,7 @@
+e.g.=for example
+i.e.=that is
+Fig.=Figure
+Eq.=Equation
+vs.=versus
+w.r.t.=with respect to
+et al.=and others
