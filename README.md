@@ -18,6 +18,8 @@ From the repo root:
 
 `--benchmark` loads the model, speaks one warmup sentence, then times about 1 KB of plain text. The pass mark is under 30 seconds of synthesis per kilobyte. Model load is printed separately. If the timed kilobyte is over 30 seconds, rerun real jobs with `--engine piper`.
 
+Experimental engine research (FrankenTTS / Qwen-on-CPU) lives under `research_notes/Local university reading audio/franken-tts.md` with a fill-in trial sheet `franken-tts-trial.md`.
+
 On Arch, install `espeak-ng`, `ffmpeg`, and Python 3.12 yourself, then rerun `./install.sh`.
 
 ## Daily commands

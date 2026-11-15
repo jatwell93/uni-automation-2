@@ -8,6 +8,8 @@ Three different ways to do this, none of which is “install a Kokoro GUI”:
 2. Upstream Kokoro-82M (`pip install kokoro` or ONNX), which fits in 2 GB VRAM and speaks the text after grapheme-to-phoneme conversion.
 3. A second neural family that is not Kokoro: Kyutai pocket-tts (streaming, CPU) or KittenTTS nano (Apache ONNX). For higher naturalness, Qwen3-TTS is the 2026 model, but the measured 0.6B checkpoint does not fit 2 GB and misses the speed bar on CPU. Alibaba’s DashScope API is the real cloud product for that family; the text is what leaves the machine.
 
+**Spike (not a primary engine in readaloud yet):** [franken_tts](https://github.com/Dicklesworthstone/franken_tts) is a Rust CPU runtime for Qwen3-TTS 0.6B that may beat PyTorch-on-CPU Qwen on long text. Trial protocol and integration plan: [franken-tts.md](franken-tts.md); blank results: [franken-tts-trial.md](franken-tts-trial.md).
+
 ## Which families are alive and distinct?
 
 ### Takeaway
