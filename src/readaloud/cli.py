@@ -14,7 +14,9 @@ from readaloud.extract import ReadAloudError, extract_file
 from readaloud.mux import ChapterMark, concat_line, ffmetadata, mux_m4b, write_silence
 from readaloud.speak import (
     HEADING_PAUSE,
+    LIST_ITEM_PAUSE,
     SENTENCE_PAUSE,
+    TABLE_ROW_PAUSE,
     KokoroEngine,
     PiperEngine,
     fetch_models,
@@ -68,7 +70,12 @@ def parser() -> argparse.ArgumentParser:
     argument_parser.add_argument("--piper-voice", default="en_US-lessac-medium")
     argument_parser.add_argument("--math", choices=("omit", "keep"), default="omit")
     argument_parser.add_argument("--code", choices=("speak", "omit"), default="speak")
-    argument_parser.add_argument("--tables", choices=("speak", "skip"), default="speak")
+    argument_parser.add_argument(
+        "--tables",
+        choices=("speak", "rows", "skip"),
+        default="speak",
+        help="speak flattens a table to one paragraph; rows speaks each line with Header/Row labels",
+    )
     argument_parser.add_argument(
         "--citations",
         choices=("keep", "numeric", "all"),
@@ -184,10 +191,18 @@ def pieces_for(result: TidyResult) -> list[dict[str, str]]:
         parts = speech_pieces(segment.text)
         for index, piece in enumerate(parts):
             opens_chapter = index == 0 and segment.kind == "heading"
+            closes_segment = index == len(parts) - 1
+            if opens_chapter:
+                kind = "heading"
+            elif closes_segment and segment.kind in ("list_item", "table_row"):
+                # Interior sentence pieces use body pauses; list/table pause only after the segment.
+                kind = segment.kind
+            else:
+                kind = "body"
             items.append(
                 {
                     "text": piece,
-                    "kind": "heading" if opens_chapter else "body",
+                    "kind": kind,
                     "chapter": (segment.chapter_title or "") if opens_chapter else "",
                 }
             )
@@ -247,10 +262,16 @@ def build_audio(items: list[dict[str, str]], work: Path, output: Path, title: st
         raise ReadAloudError("Nothing left to speak after the speech rules.")
     first = work / "00000.wav"
     silence_body = work / "silence-body.wav"
+    silence_list = work / "silence-list.wav"
+    silence_table = work / "silence-table.wav"
     silence_heading = work / "silence-heading.wav"
     write_silence(first, silence_body, SENTENCE_PAUSE)
+    write_silence(first, silence_list, LIST_ITEM_PAUSE)
+    write_silence(first, silence_table, TABLE_ROW_PAUSE)
     write_silence(first, silence_heading, HEADING_PAUSE)
     body_frames = sf.info(silence_body).frames
+    list_frames = sf.info(silence_list).frames
+    table_frames = sf.info(silence_table).frames
     heading_frames = sf.info(silence_heading).frames
     sample_rate = sf.info(first).samplerate
 
@@ -269,8 +290,19 @@ def build_audio(items: list[dict[str, str]], work: Path, output: Path, title: st
         lines.append(concat_line(wav))
         cursor += frames
         if index + 1 < len(items):
-            pause = silence_heading if item["kind"] == "heading" else silence_body
-            pause_frames = heading_frames if item["kind"] == "heading" else body_frames
+            kind = item["kind"]
+            if kind == "heading":
+                pause = silence_heading
+                pause_frames = heading_frames
+            elif kind == "list_item":
+                pause = silence_list
+                pause_frames = list_frames
+            elif kind == "table_row":
+                pause = silence_table
+                pause_frames = table_frames
+            else:
+                pause = silence_body
+                pause_frames = body_frames
             lines.append(concat_line(pause))
             cursor += pause_frames
 
