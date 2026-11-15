@@ -1,0 +1,693 @@
+ℹ Scan size after ignores: 0MB (limit 1000MB)
+ℹ All selected modules support contract v2; scanning source tree directly
+ℹ Ignore suggestions (directories with >200 files not already default-ignored):
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  ██╗   ██╗██╗  ████████╗██╗███╗   ███╗ █████╗ ████████╗███████╗              ║
+║  ██║   ██║██║  ╚══██╔══╝██║████╗ ████║██╔══██╗╚══██╔══╝██╔════╝              ║
+║  ██║   ██║██║     ██║   ██║██╔████╔██║███████║   ██║   █████╗                ║
+║  ██║   ██║██║     ██║   ██║██║╚██╔╝██║██╔══██║   ██║   ██╔══╝                ║
+║  ╚██████╔╝███████╗██║   ██║██║ ╚═╝ ██║██║  ██║   ██║   ███████╗              ║
+║   ╚═════╝ ╚══════╝╚═╝   ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝              ║
+║                                                                              ║
+║  ██████╗ ██╗   ██╗ ██████╗         __       __                               ║
+║  ██╔══██╗██║   ██║██╔════╝         \ `-'"-'` /                               ║
+║  ██████╔╝██║   ██║██║  ███╗        / \_   _/ \                               ║
+║  ██╔══██╗██║   ██║██║   ██║        |  d\_/b  |                               ║
+║  ██████╔╝╚██████╔╝╚██████╔╝       .'\   V   /'.                              ║
+║  ╚═════╝  ╚═════╝  ╚═════╝        /   '-...-'   \                            ║
+║                                  | /         \ |                             ║
+║                                  \/\         /\/                             ║
+║                                  ==(||)---(||)==                             ║
+║                                                                              ║
+║  ███████╗  ██████╗   █████╗ ███╗   ██╗███╗   ██╗███████╗██████╗              ║
+║  ██╔════╝  ██╔═══╝  ██╔══██╗████╗  ██║████╗  ██║██╔════╝██╔══██╗             ║
+║  ███████╗  ██║      ███████║██╔██╗ ██║██╔██╗ ██║█████╗  ██████╔╝             ║
+║  ╚════██║  ██║      ██╔══██║██║╚██╗██║██║╚██╗██║██╔══╝  ██╔══██╗             ║
+║  ███████║  ██████╗  ██║  ██║██║ ╚████║██║ ╚████║███████╗██║  ██║             ║
+║  ╚══════╝  ╚═════╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝                  ║
+║                                                                              ║
+║   JS / TS • PYTHON • C / C++ • RUST • GO • JAVA • RUBY                       ║
+║   KOTLIN • SWIFT • C# • ELIXIR • BASH • PHP                                  ║
+║                    UBS: ULTIMATE BUG SCANNER • SARIF FUSION ☄️               ║
+║                                                                              ║
+║                                                                              ║
+║                     Night Owl QA                                             ║
+║                     “We see bugs before you do.”                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+UBS Meta-Runner v5.5.24  2026-11-15 13:12:25
+Project: /home/ja/tools/uni-automations
+Format:  text
+Detected: python bash
+
+──────── python ────────
+
+• ruff (lint)
+[
+  {
+    "cell": null,
+    "code": "FURB167",
+    "end_location": {
+      "column": 67,
+      "row": 14
+    },
+    "filename": "/home/ja/tools/uni-automations/src/readaloud/tidy.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re",
+          "end_location": {
+            "column": 10,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        },
+        {
+          "content": "re.DOTALL",
+          "end_location": {
+            "column": 67,
+            "row": 14
+          },
+          "location": {
+            "column": 63,
+            "row": 14
+          }
+        }
+      ],
+      "message": "Replace with `re.DOTALL`"
+    },
+    "location": {
+      "column": 63,
+      "row": 14
+    },
+    "message": "Use of regular expression alias `re.S`",
+    "name": "regex-flag-alias",
+    "noqa_row": 14,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias"
+  },
+  {
+    "cell": null,
+    "code": "FURB167",
+    "end_location": {
+      "column": 50,
+      "row": 16
+    },
+    "filename": "/home/ja/tools/uni-automations/src/readaloud/tidy.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re",
+          "end_location": {
+            "column": 10,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        },
+        {
+          "content": "re.DOTALL",
+          "end_location": {
+            "column": 50,
+            "row": 16
+          },
+          "location": {
+            "column": 46,
+            "row": 16
+          }
+        }
+      ],
+      "message": "Replace with `re.DOTALL`"
+    },
+    "location": {
+      "column": 46,
+      "row": 16
+    },
+    "message": "Use of regular expression alias `re.S`",
+    "name": "regex-flag-alias",
+    "noqa_row": 16,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias"
+  },
+  {
+    "cell": null,
+    "code": "FURB167",
+    "end_location": {
+      "column": 51,
+      "row": 17
+    },
+    "filename": "/home/ja/tools/uni-automations/src/readaloud/tidy.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re",
+          "end_location": {
+            "column": 10,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        },
+        {
+          "content": "re.DOTALL",
+          "end_location": {
+            "column": 51,
+            "row": 17
+          },
+          "location": {
+            "column": 47,
+            "row": 17
+          }
+        }
+      ],
+      "message": "Replace with `re.DOTALL`"
+    },
+    "location": {
+      "column": 47,
+      "row": 17
+    },
+    "message": "Use of regular expression alias `re.S`",
+    "name": "regex-flag-alias",
+    "noqa_row": 17,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias"
+  },
+  {
+    "cell": null,
+    "code": "FURB167",
+    "end_location": {
+      "column": 48,
+      "row": 18
+    },
+    "filename": "/home/ja/tools/uni-automations/src/readaloud/tidy.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re",
+          "end_location": {
+            "column": 10,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        },
+        {
+          "content": "re.DOTALL",
+          "end_location": {
+            "column": 48,
+            "row": 18
+          },
+          "location": {
+            "column": 44,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Replace with `re.DOTALL`"
+    },
+    "location": {
+      "column": 44,
+      "row": 18
+    },
+    "message": "Use of regular expression alias `re.S`",
+    "name": "regex-flag-alias",
+    "noqa_row": 18,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias"
+  },
+  {
+    "cell": null,
+    "code": "FURB167",
+    "end_location": {
+      "column": 49,
+      "row": 22
+    },
+    "filename": "/home/ja/tools/uni-automations/src/readaloud/tidy.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re",
+          "end_location": {
+            "column": 10,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        },
+        {
+          "content": "re.IGNORECASE",
+          "end_location": {
+            "column": 49,
+            "row": 22
+          },
+          "location": {
+            "column": 45,
+            "row": 22
+          }
+        }
+      ],
+      "message": "Replace with `re.IGNORECASE`"
+    },
+    "location": {
+      "column": 45,
+      "row": 22
+    },
+    "message": "Use of regular expression alias `re.I`",
+    "name": "regex-flag-alias",
+    "noqa_row": 22,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias"
+  },
+  {
+    "cell": null,
+    "code": "FURB167",
+    "end_location": {
+      "column": 47,
+      "row": 29
+    },
+    "filename": "/home/ja/tools/uni-automations/src/readaloud/tidy.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re",
+          "end_location": {
+            "column": 10,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        },
+        {
+          "content": "re.DOTALL",
+          "end_location": {
+            "column": 47,
+            "row": 29
+          },
+          "location": {
+            "column": 43,
+            "row": 29
+          }
+        }
+      ],
+      "message": "Replace with `re.DOTALL`"
+    },
+    "location": {
+      "column": 43,
+      "row": 29
+    },
+    "message": "Use of regular expression alias `re.S`",
+    "name": "regex-flag-alias",
+    "noqa_row": 29,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias"
+  },
+  {
+    "cell": null,
+    "code": "FURB167",
+    "end_location": {
+      "column": 47,
+      "row": 30
+    },
+    "filename": "/home/ja/tools/uni-automations/src/readaloud/tidy.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re",
+          "end_location": {
+            "column": 10,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        },
+        {
+          "content": "re.DOTALL",
+          "end_location": {
+            "column": 47,
+            "row": 30
+          },
+          "location": {
+            "column": 43,
+            "row": 30
+          }
+        }
+      ],
+      "message": "Replace with `re.DOTALL`"
+    },
+    "location": {
+      "column": 43,
+      "row": 30
+    },
+    "message": "Use of regular expression alias `re.S`",
+    "name": "regex-flag-alias",
+    "noqa_row": 30,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias"
+  },
+  {
+    "cell": null,
+    "code": "FURB167",
+    "end_location": {
+      "column": 61,
+      "row": 32
+    },
+    "filename": "/home/ja/tools/uni-automations/src/readaloud/tidy.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re",
+          "end_location": {
+            "column": 10,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        },
+        {
+          "content": "re.IGNORECASE",
+          "end_location": {
+            "column": 61,
+            "row": 32
+          },
+          "location": {
+            "column": 57,
+            "row": 32
+          }
+        }
+      ],
+      "message": "Replace with `re.IGNORECASE`"
+    },
+    "location": {
+      "column": 57,
+      "row": 32
+    },
+    "message": "Use of regular expression alias `re.I`",
+    "name": "regex-flag-alias",
+    "noqa_row": 32,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias"
+  }
+]  ℹ Info (8 found)
+    Ruff emitted findings
+    Review ruff output above
+
+• bandit (security)
+Run started:2026-11-15 02:12:30.834931+00:00
+
+Test results:
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: /home/ja/tools/uni-automations/src/readaloud/extract.py:6:0
+5	import shutil
+6	import subprocess
+7	import tempfile
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: /home/ja/tools/uni-automations/src/readaloud/extract.py:75:20
+74	    with tempfile.TemporaryDirectory(prefix="readaloud-marker-") as directory:
+75	        completed = subprocess.run(
+76	            [
+77	                executable,
+78	                str(path),
+79	                "--output_dir",
+80	                directory,
+81	                "--output_format",
+82	                "markdown",
+83	            ],
+84	            check=False,
+85	            capture_output=True,
+86	            text=True,
+87	        )
+88	        if completed.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: /home/ja/tools/uni-automations/src/readaloud/mux.py:6:0
+5	import shutil
+6	import subprocess
+7	from dataclasses import dataclass
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: /home/ja/tools/uni-automations/src/readaloud/mux.py:103:16
+102	    command.append(str(output))
+103	    completed = subprocess.run(command, check=False, capture_output=True, text=True)
+104	    if completed.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: /home/ja/tools/uni-automations/src/readaloud/speak.py:7:0
+6	import re
+7	import subprocess
+8	import sys
+
+--------------------------------------------------
+>> Issue: [B310:blacklist] Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen
+   Location: /home/ja/tools/uni-automations/src/readaloud/speak.py:70:9
+69	    print(f"downloading {dest.name}")
+70	    with urllib.request.urlopen(request) as response, temporary.open("wb") as handle:
+71	        while True:
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: /home/ja/tools/uni-automations/src/readaloud/speak.py:122:8
+121	        self.ensure()
+122	        assert self._kokoro is not None
+123	        try:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: /home/ja/tools/uni-automations/src/readaloud/speak.py:172:24
+171	        if not self.model_path().is_file():
+172	            completed = subprocess.run(
+173	                [
+174	                    sys.executable,
+175	                    "-m",
+176	                    "piper.download_voices",
+177	                    self.voice_name,
+178	                    "--download-dir",
+179	                    str(self.data_dir),
+180	                ],
+181	                check=False,
+182	            )
+183	            if completed.returncode != 0 or not self.model_path().is_file():
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: /home/ja/tools/uni-automations/src/readaloud/speak.py:193:8
+192	        self.ensure()
+193	        assert self._voice is not None
+194	        dest.parent.mkdir(parents=True, exist_ok=True)
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 1045
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 8
+		Medium: 1
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 9
+Files skipped (0):
+  ℹ Info (0 found)
+    Bandit scan completed
+    See output above
+
+• pip-audit (dependencies)
+No known vulnerabilities found
+  ℹ Info (0 found)
+    pip-audit ran against requirements.txt
+    Review advisories above
+UBS module: python (contract v2) — /home/ja/tools/uni-automations
+Files scanned: 10
+
+2. NUMERIC / ARITHMETIC PITFALLS
+[info] Division operations found - check divisors — start_ms = int(chapter.start_frame / sample_rate * 1000) (5 found) — py.numeric.division
+    /home/ja/tools/uni-automations/src/readaloud/mux.py:29  Division operations found - check divisors — start_ms = int(chapter.start_frame / sample_rate * 1000) (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/mux.py#L29)
+    /home/ja/tools/uni-automations/src/readaloud/mux.py:34  Division operations found - check divisors — end_ms = int(end_frame / sample_rate * 1000) (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/mux.py#L34)
+    /home/ja/tools/uni-automations/src/readaloud/cli.py:257  Division operations found - check divisors — work = args.work / stem (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/cli.py#L257)
+    /home/ja/tools/uni-automations/src/readaloud/cli.py:289  Division operations found - check divisors — per_kb = synth_s / kilobytes (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/cli.py#L289)
+    /home/ja/tools/uni-automations/src/readaloud/cli.py:225  Division operations found - check divisors — per_kb = synth_s / kilobytes if kilobytes else 0 (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/cli.py#L225)
+
+7. SECURITY VULNERABILITIES
+[warning] Outbound HTTP call has no explicit timeout — with urllib.request.urlopen(request) as response, temporary.open("wb") as handle: (1 found) — py.security.http-timeout
+    /home/ja/tools/uni-automations/src/readaloud/speak.py:70  Outbound HTTP call has no explicit timeout — with urllib.request.urlopen(request) as response, temporary.open("wb") as handle: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/speak.py#L70)
+[warning] Subprocess call has no bounded timeout — completed = subprocess.run(command, check=False, capture_output=True, text=True) (3 found) — py.security.subprocess-timeout
+    /home/ja/tools/uni-automations/src/readaloud/mux.py:103  Subprocess call has no bounded timeout — completed = subprocess.run(command, check=False, capture_output=True, text=True) (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/mux.py#L103)
+    /home/ja/tools/uni-automations/src/readaloud/speak.py:172  Subprocess call has no bounded timeout — completed = subprocess.run( (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/speak.py#L172)
+    /home/ja/tools/uni-automations/src/readaloud/extract.py:75  Subprocess call has no bounded timeout — completed = subprocess.run( (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/extract.py#L75)
+
+8. FUNCTION & SCOPE ISSUES
+[info] Some functions may lack return statements — def parser() -> argparse.ArgumentParser: (4 found) — py.functions.missing-returns
+    /home/ja/tools/uni-automations/src/readaloud/cli.py:42  Some functions may lack return statements — def parser() -> argparse.ArgumentParser: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/cli.py#L42)
+    /home/ja/tools/uni-automations/src/readaloud/cli.py:95  Some functions may lack return statements — def make_engine(args: argparse.Namespace, root: Path): (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/cli.py#L95)
+    /home/ja/tools/uni-automations/src/readaloud/cli.py:102  Some functions may lack return statements — def tidy_options(args: argparse.Namespace) -> TidyOptions: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/cli.py#L102)
+    /home/ja/tools/uni-automations/src/readaloud/cli.py:112  Some functions may lack return statements — def collect_inputs(value: str | None) -> list[Path] | None: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/cli.py#L112)
+[info] Nested functions - verify closures and lifetimes — def test_heading_becomes_a_chapter_and_drops_marks(self) -> None: (32 found) — py.functions.nested-defs
+    /home/ja/tools/uni-automations/tests/test_tidy.py:15  Nested functions - verify closures and lifetimes — def test_heading_becomes_a_chapter_and_drops_marks(self) -> None: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/tests/test_tidy.py#L15)
+    /home/ja/tools/uni-automations/tests/test_tidy.py:22  Nested functions - verify closures and lifetimes — def test_emphasis_is_removed(self) -> None: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/tests/test_tidy.py#L22)
+    /home/ja/tools/uni-automations/tests/test_tidy.py:25  Nested functions - verify closures and lifetimes — def test_citations_stay_unless_asked(self) -> None: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/tests/test_tidy.py#L25)
+    /home/ja/tools/uni-automations/tests/test_tidy.py:34  Nested functions - verify closures and lifetimes — def test_math_is_marked_and_counted(self) -> None: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/tests/test_tidy.py#L34)
+    /home/ja/tools/uni-automations/tests/test_tidy.py:43  Nested functions - verify closures and lifetimes — def test_links_keep_anchor_text_and_drop_bare_urls(self) -> None: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/tests/test_tidy.py#L43)
+
+9. PARSING & TYPE CONVERSION BUGS
+[warning] json.loads without error handling — previous = json.loads(manifest_path.read_text(encoding="utf-8")) (1 found) — py.parsing.json-loads-no-try
+    /home/ja/tools/uni-automations/src/readaloud/cli.py:153  json.loads without error handling — previous = json.loads(manifest_path.read_text(encoding="utf-8")) (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/cli.py#L153)
+[info] String concatenation with + — self.assertNotIn("\n12\n", "\n" + text) (17 found) — py.parsing.string-concat-plus
+    /home/ja/tools/uni-automations/tests/test_tidy.py:60  String concatenation with + — self.assertNotIn("\n12\n", "\n" + text) (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/tests/test_tidy.py#L60)
+    /home/ja/tools/uni-automations/src/readaloud/mux.py:20  String concatenation with + — escaped = escaped.replace(character, "\\" + character) (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/mux.py#L20)
+    /home/ja/tools/uni-automations/src/readaloud/mux.py:46  String concatenation with + — return "\n".join(lines) + "\n" (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/mux.py#L46)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:22  String concatenation with + — _URL = re.compile(r"https?://\S+|www\.\S+", re.I) (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L22)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:35  String concatenation with + — _BULLET = re.compile(r"^\s*[-*+]\s+") (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L35)
+
+10. CONTROL FLOW GOTCHAS
+[info] Possible unreachable code after return — return mapping (20 found) — py.control-flow.unreachable-code
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:97  Possible unreachable code after return — return mapping (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L97)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:153  Possible unreachable code after return — return "" (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L153)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:211  Possible unreachable code after return — return (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L211)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:220  Possible unreachable code after return — return (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L220)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:224  Possible unreachable code after return — return (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L224)
+
+15. REGEX & STRING SAFETY
+[info] Dynamic regex construction — _INLINE_CODE = re.compile(r"`([^`\n]+)`") (18 found) — py.regex.dynamic-compile
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:15  Dynamic regex construction — _INLINE_CODE = re.compile(r"`([^`\n]+)`") (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L15)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:19  Dynamic regex construction — _INLINE_DOLLAR = re.compile(r"\$[^$\n]+\$") (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L19)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:20  Dynamic regex construction — _IMAGE = re.compile(r"!\[([^\]]*)\]\([^)]*\)") (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L20)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:21  Dynamic regex construction — _LINK = re.compile(r"\[([^\]]+)\]\([^)]*\)") (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L21)
+    /home/ja/tools/uni-automations/src/readaloud/tidy.py:23  Dynamic regex construction — _EMAIL = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b") (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/tidy.py#L23)
+
+16. I/O & RESOURCE SAFETY
+[info] open() missing encoding — with wave.open(str(wav), "wb") as handle: (3 found) — py.io.open-no-encoding
+    /home/ja/tools/uni-automations/tests/test_tidy.py:146  open() missing encoding — with wave.open(str(wav), "wb") as handle: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/tests/test_tidy.py#L146)
+    /home/ja/tools/uni-automations/src/readaloud/speak.py:70  open() missing encoding — with urllib.request.urlopen(request) as response, temporary.open("wb") as handle: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/speak.py#L70)
+    /home/ja/tools/uni-automations/src/readaloud/speak.py:195  open() missing encoding — with wave.open(str(dest), "wb") as handle: (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/speak.py#L195)
+
+AST-GREP RULE PACK FINDINGS
+ast-grep rule-pack summary
+[info] py.assert-used: assert is stripped with -O; avoid for runtime checks (2 found) — py.assert-used
+    /home/ja/tools/uni-automations/src/readaloud/speak.py:122  py.assert-used: assert is stripped with -O; avoid for runtime checks (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/speak.py#L122)
+    /home/ja/tools/uni-automations/src/readaloud/speak.py:193  py.assert-used: assert is stripped with -O; avoid for runtime checks (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/src/readaloud/speak.py#L193)
+Critical issues: 0
+Warning issues: 5
+Info items: 101
+Report generated: 2026-11-15T02:12:30Z
+1. NONE / DEFENSIVE PROGRAMMING
+3. COLLECTION SAFETY
+4. COMPARISON & TYPE CHECKING TRAPS
+5. ASYNC/AWAIT PITFALLS
+6. ERROR HANDLING ANTI-PATTERNS
+11. DEBUGGING & PRODUCTION CODE
+12. PERFORMANCE & MEMORY
+13. VARIABLE & SCOPE
+14. CODE QUALITY MARKERS
+17. TYPING STRICTNESS
+18. PYTHON I/O & MODULE USAGE
+19. RESOURCE LIFECYCLE CORRELATION
+20. UV-POWERED EXTRA ANALYZERS
+21. DEPRECATIONS & PY3.13 MIGRATIONS
+22. PACKAGING & CONFIG HYGIENE
+23. NOTEBOOK HYGIENE
+
+Summary Statistics:
+Files scanned: 10
+Critical issues: 0
+Warning issues: 5
+Info items: 109
+
+──────── bash ────────
+UBS module: Bash (contract v2) — /home/ja/tools/uni-automations
+Files scanned: 1
+
+Summary Statistics:
+Files scanned: 1
+Critical issues: 0
+Warning issues: 1
+Info items: 0
+Report generated: 2026-11-15T02:12:27Z
+1. BASH SYNTAX & ARITHMETIC GOTCHAS
+good: clean
+2. CONTROL FLOW & EXIT CODES
+good: clean
+3. SECURITY & DANGEROUS COMMANDS
+good: clean
+4. DEFENSIVE PROGRAMMING & ROBUSTNESS
+[warning] bash.robustness.cd_without_exit: cd without || exit / || return: cd "$(dirname "$0")"
+    /home/ja/tools/uni-automations/install.sh:5 (https://github.com/jatwell93/uni-automation-2/blob/e3af41ed0aace470a617edb19d52a9776616167c/install.sh#L5)
+5. ENVIRONMENT & LOCALE HYGIENE
+good: clean
+6. SHELLCHECK ANALYSIS
+good: clean
+
+──────── Environment Error ────────
+✗ One or more scanners could not run correctly (exit 2).
+This is a tooling/dependency problem, not a code-quality failure.
+See the affected scanner output above for remediation guidance.
+
+──────── Combined Summary ────────
+Files: 11
+Critical: 0
+Warning: 6
+Info: 109
+Status: partial — python: error
