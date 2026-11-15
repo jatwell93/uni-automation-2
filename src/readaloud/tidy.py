@@ -34,7 +34,7 @@ _PAGE_LINE = re.compile(
 )
 _HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
 _BULLET = re.compile(r"^\s*[-*+]\s+")
-_ORDERED = re.compile(r"^\s*\d+[.)]\s+")
+_ORDERED = re.compile(r"^\s*(\d+)[.)]\s+")
 _QUOTE = re.compile(r"^\s*>\s?")
 _TABLE_LINE = re.compile(r"^\s*\|.*\|\s*$")
 _TABLE_RULE = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$")
@@ -142,16 +142,26 @@ def _strip_emphasis(text: str) -> str:
     return text
 
 
+def _table_cells(line: str) -> list[str]:
+    cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+    return [cell for cell in cells if cell and not re.fullmatch(r":?-{3,}:?", cell)]
+
+
 def _table_speech(lines: list[str]) -> str:
     rows: list[str] = []
     for line in lines:
         if _TABLE_RULE.match(line):
             continue
-        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
-        cells = [cell for cell in cells if cell and not re.fullmatch(r":?-{3,}:?", cell)]
+        cells = _table_cells(line)
         if cells:
             rows.append(", ".join(cells) + ".")
     return " ".join(rows)
+
+
+def _table_row_speech(cells: list[str], *, header: bool) -> str:
+    label = "Header: " if header else "Row: "
+    joined = ", ".join(_strip_emphasis(cell) for cell in cells)
+    return _ensure_sentence(label + joined)
 
 
 def _ensure_sentence(text: str) -> str:
@@ -229,6 +239,16 @@ def tidy(text: str, options: TidyOptions | None = None) -> TidyResult:
         table.clear()
         if options.tables == "skip":
             return
+        if options.tables == "rows":
+            has_rule = any(_TABLE_RULE.match(line) for line in rows)
+            data_rows = [line for line in rows if not _TABLE_RULE.match(line)]
+            for index, line in enumerate(data_rows):
+                cells = _table_cells(line)
+                if not cells:
+                    continue
+                header = has_rule and index == 0
+                segments.append(Segment(_table_row_speech(cells, header=header), "table_row"))
+            return
         spoken = _strip_emphasis(_table_speech(rows))
         if spoken:
             segments.append(Segment(spoken, "body"))
@@ -269,10 +289,21 @@ def tidy(text: str, options: TidyOptions | None = None) -> TidyResult:
                 segments.append(Segment(_ensure_sentence(words), "heading", words))
             continue
 
-        cleaned = _QUOTE.sub("", line)
-        cleaned = _BULLET.sub("", cleaned)
-        cleaned = _ORDERED.sub("", cleaned)
-        cleaned = cleaned.strip()
+        without_quote = _QUOTE.sub("", line)
+        bullet = _BULLET.match(without_quote)
+        ordered = _ORDERED.match(without_quote)
+        if bullet or ordered:
+            flush_paragraph()
+            cleaned = _BULLET.sub("", without_quote)
+            cleaned = _ORDERED.sub("", cleaned).strip()
+            cleaned = _strip_emphasis(cleaned)
+            if not cleaned:
+                continue
+            prefix = f"Item {ordered.group(1)}. " if ordered else ""
+            segments.append(Segment(_ensure_sentence(prefix + cleaned), "list_item"))
+            continue
+
+        cleaned = without_quote.strip()
         if cleaned:
             paragraph.append(cleaned)
 

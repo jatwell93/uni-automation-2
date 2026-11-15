@@ -78,6 +78,30 @@ class TidyTests(unittest.TestCase):
         self.assertNotIn("|", spoken(source))
         self.assertEqual(spoken(source, tables="skip").strip(), "")
 
+    def test_tables_rows_mode_labels_each_line(self) -> None:
+        source = "| A | B |\n| --- | --- |\n| one | two |\n"
+        text = spoken(source, tables="rows")
+        self.assertIn("Header: A, B.", text)
+        self.assertIn("Row: one, two.", text)
+        result = tidy(source, TidyOptions(tables="rows"))
+        kinds = [segment.kind for segment in result.segments]
+        self.assertEqual(kinds, ["table_row", "table_row"])
+
+    def test_list_items_are_separate_segments(self) -> None:
+        source = "Intro.\n\n1. First point.\n2. Second point.\n\nOutro.\n"
+        result = tidy(source, TidyOptions())
+        kinds = [segment.kind for segment in result.segments]
+        self.assertEqual(kinds, ["body", "list_item", "list_item", "body"])
+        self.assertIn("Item 1. First point.", result.spoken)
+        self.assertIn("Item 2. Second point.", result.spoken)
+        self.assertIn("First point.\n\nItem 2.", result.spoken)
+
+    def test_bullet_list_items_are_separate(self) -> None:
+        source = "- Alpha.\n- Beta.\n"
+        result = tidy(source, TidyOptions())
+        self.assertEqual([s.kind for s in result.segments], ["list_item", "list_item"])
+        self.assertNotIn("Alpha. Beta.", result.spoken)
+
     def test_yaml_front_matter_is_removed(self) -> None:
         text = spoken("---\ntitle: Notes\n---\nThe body.\n")
         self.assertIn("The body.", text)
