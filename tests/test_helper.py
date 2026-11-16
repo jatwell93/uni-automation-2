@@ -28,6 +28,7 @@ class HelperTests(unittest.TestCase):
         self.assertIn("1  First-time setup", MENU)
         self.assertIn("Plan or markdown", MENU)
         self.assertIn("7  Show cheat sheet", MENU)
+        self.assertIn("8  Check a file", MENU)
         self.assertIn("last path", MENU.lower())
 
     def test_python_invocation_uses_module(self) -> None:

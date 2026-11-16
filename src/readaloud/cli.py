@@ -111,6 +111,11 @@ def parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Interactive menu and cheat sheet for common commands",
     )
+    argument_parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Scan structure and print a suggested command (no synthesis)",
+    )
     return argument_parser
 
 
@@ -407,6 +412,13 @@ def run_benchmark(args: argparse.Namespace, root: Path) -> int:
         print("Over 30 seconds per KB. Rerun real jobs with --engine piper.")
     else:
         print("Under 30 seconds per KB.")
+    summary = {
+        "engine": args.engine,
+        "per_kb": round(per_kb, 3),
+        "synth_s": round(synth_s, 3),
+        "load_s": round(load_s, 3),
+    }
+    (bench_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     return 0
 
 
@@ -424,6 +436,31 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.benchmark:
         return run_benchmark(args, root)
+
+    if args.check:
+        if not args.input or args.input == "-":
+            print("error: --check needs a file or folder path.", file=sys.stderr)
+            return 2
+        from readaloud.preflight import analyze_path, format_report
+
+        inputs = collect_inputs(args.input)
+        if not inputs:
+            print("error: the folder has no .txt, .md, or .pdf files.", file=sys.stderr)
+            return 1
+        for path in inputs:
+            try:
+                report = analyze_path(
+                    path,
+                    pdf_engine=args.pdf_engine,
+                    allow_partial_pdf=args.allow_partial_pdf,
+                    work=args.work,
+                    stem=safe_stem(path.stem),
+                )
+            except ReadAloudError as error:
+                print(f"error: {path.name}: {error}", file=sys.stderr)
+                return 1
+            print(format_report(report), end="")
+        return 0
 
     inputs = collect_inputs(args.input)
     if inputs is None:

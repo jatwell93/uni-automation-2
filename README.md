@@ -24,6 +24,14 @@ On Arch, install `espeak-ng`, `ffmpeg`, and Python 3.12 yourself, then rerun `./
 
 ## Daily commands
 
+Before a long job, scan structure and get a suggested command (no synthesis):
+
+```bash
+.venv/bin/python -m readaloud --check PLAN.md
+```
+
+`--check` reports spoken size, chunk count, tables, lists, code, citations, and uses `work/benchmark/summary.json` from the last `--benchmark` to suggest `--engine piper` when Kokoro was slow on this CPU.
+
 With no file argument, the guided menu opens automatically (same as `--helper`):
 
 ```bash
