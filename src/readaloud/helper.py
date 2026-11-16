@@ -20,6 +20,7 @@ Readaloud helper — pick a task (enter a number, or q to quit)
   5  Born-digital PDF       text-layer extraction (not scanned pages)
   6  Folder of readings     every .txt / .md / .pdf in one directory
   7  Show cheat sheet       copy-paste commands, no prompts
+  8  Check a file           scan structure, suggest flags (no synthesis)
   q  Quit
 """
 
@@ -93,6 +94,9 @@ def cheat_sheet(home: Path | None = None) -> str:
         "  --math keep             keep dollar amounts (default omit can garble A$…)",
         "  --code omit             skip ASCII diagrams in fenced blocks",
         "  --allow-partial-pdf     mixed PDFs; skipped pages listed in work/",
+        "",
+        "Check before a long run:",
+        f"  {py} --check plan.md",
         "",
         "Guided menu (also runs when you type readaloud with no file):",
         f"  {py} --helper",
@@ -178,6 +182,9 @@ def dispatch(choice: str, session: HelperSession) -> int | None:
     if choice == "7":
         print(cheat_sheet())
         return None
+    if choice == "8":
+        path = _ask_existing_path("File or folder to check")
+        return run_command(python_invocation() + ["--check", str(path)])
     if choice == "1":
         return _setup_sequence()
     if choice == "2":
@@ -204,7 +211,7 @@ def dispatch(choice: str, session: HelperSession) -> int | None:
         if _ask_yes_no("Use Piper for the batch?", default_yes=False):
             engine = ["--engine", "piper"]
         return run_command(python_invocation() + engine + [str(path)])
-    print("  Enter 1–7 or q.")
+    print("  Enter 1–8 or q.")
     return None
 
 
