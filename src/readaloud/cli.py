@@ -418,7 +418,12 @@ def run_benchmark(args: argparse.Namespace, root: Path) -> int:
         "synth_s": round(synth_s, 3),
         "load_s": round(load_s, 3),
     }
-    (bench_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    if args.engine == "kokoro":
+        (bench_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    else:
+        (bench_dir / f"summary-{args.engine}.json").write_text(
+            json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+        )
     return 0
 
 
@@ -441,13 +446,24 @@ def main(argv: list[str] | None = None) -> int:
         if not args.input or args.input == "-":
             print("error: --check needs a file or folder path.", file=sys.stderr)
             return 2
-        from readaloud.preflight import analyze_path, format_report
+        from readaloud.preflight import SuggestPassthrough, analyze_path, format_report
 
         inputs = collect_inputs(args.input)
         if not inputs:
             print("error: the folder has no .txt, .md, or .pdf files.", file=sys.stderr)
             return 1
+        passthrough = SuggestPassthrough(
+            allow_partial_pdf=args.allow_partial_pdf,
+            pdf_engine=args.pdf_engine,
+            work=args.work,
+            output=args.output,
+            normalize=args.normalize,
+            pronunciations=args.pronunciations,
+        )
         for path in inputs:
+            if not path.is_file():
+                print(f"error: {path.name}: Not a file: {path}", file=sys.stderr)
+                return 1
             try:
                 report = analyze_path(
                     path,
@@ -455,8 +471,9 @@ def main(argv: list[str] | None = None) -> int:
                     allow_partial_pdf=args.allow_partial_pdf,
                     work=args.work,
                     stem=safe_stem(path.stem),
+                    passthrough=passthrough,
                 )
-            except ReadAloudError as error:
+            except (ReadAloudError, RuntimeError, OSError, ValueError) as error:
                 print(f"error: {path.name}: {error}", file=sys.stderr)
                 return 1
             print(format_report(report), end="")

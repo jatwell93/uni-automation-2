@@ -33,6 +33,18 @@ class StructureScan:
 
 
 @dataclass
+class SuggestPassthrough:
+    """CLI options echoed into the suggested run line."""
+
+    allow_partial_pdf: bool = False
+    pdf_engine: str = "inspector"
+    work: Path = field(default_factory=lambda: Path("work"))
+    output: Path = field(default_factory=lambda: Path("library"))
+    normalize: bool = False
+    pronunciations: Path | None = None
+
+
+@dataclass
 class PreflightReport:
     path: Path
     chars_in: int
@@ -72,13 +84,38 @@ def load_kokoro_benchmark(work: Path) -> float | None:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return None
+    engine = payload.get("engine")
+    if engine is not None and engine != "kokoro":
+        return None
     per_kb = payload.get("per_kb")
     if isinstance(per_kb, (int, float)):
         return float(per_kb)
     return None
 
 
-def analyze_text(path: Path, text: str, *, work: Path) -> PreflightReport:
+def _append_passthrough(argv: list[str], passthrough: SuggestPassthrough) -> None:
+    if passthrough.allow_partial_pdf:
+        argv.append("--allow-partial-pdf")
+    if passthrough.pdf_engine != "inspector":
+        argv.extend(["--pdf-engine", passthrough.pdf_engine])
+    if passthrough.work.resolve() != Path("work").resolve():
+        argv.extend(["--work", str(passthrough.work)])
+    if passthrough.output.resolve() != Path("library").resolve():
+        argv.extend(["-o", str(passthrough.output)])
+    if passthrough.normalize:
+        argv.append("--normalize")
+    if passthrough.pronunciations is not None:
+        argv.extend(["--pronunciations", str(passthrough.pronunciations)])
+
+
+def analyze_text(
+    path: Path,
+    text: str,
+    *,
+    work: Path,
+    passthrough: SuggestPassthrough | None = None,
+) -> PreflightReport:
+    passthrough = passthrough or SuggestPassthrough()
     structure = scan_structure(text)
     base = tidy(text, TidyOptions())
     rows_preview = tidy(text, TidyOptions(tables="rows"))
@@ -153,6 +190,7 @@ def analyze_text(path: Path, text: str, *, work: Path) -> PreflightReport:
     for key in ("engine", "tables", "math", "code", "citations"):
         if key in flags:
             argv.extend([f"--{key}", flags[key]])
+    _append_passthrough(argv, passthrough)
 
     return PreflightReport(
         path=path,
@@ -201,8 +239,9 @@ def analyze_path(
     allow_partial_pdf: bool,
     work: Path,
     stem: str,
+    passthrough: SuggestPassthrough | None = None,
 ) -> PreflightReport:
-    from readaloud.extract import ReadAloudError, extract_file
+    from readaloud.extract import extract_file
 
     work_dir = work / stem
     text = extract_file(
@@ -211,4 +250,10 @@ def analyze_path(
         allow_partial_pdf=allow_partial_pdf,
         skipped_pages_path=work_dir / "pdf-skipped-pages.txt",
     )
-    return analyze_text(path, text, work=work)
+    if passthrough is None:
+        passthrough = SuggestPassthrough(
+            allow_partial_pdf=allow_partial_pdf,
+            pdf_engine=pdf_engine,
+            work=work,
+        )
+    return analyze_text(path, text, work=work, passthrough=passthrough)

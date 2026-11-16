@@ -4,7 +4,12 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from readaloud.preflight import analyze_text, format_report, load_kokoro_benchmark
+from readaloud.preflight import (
+    SuggestPassthrough,
+    analyze_text,
+    format_report,
+    load_kokoro_benchmark,
+)
 
 
 class PreflightTests(unittest.TestCase):
@@ -47,8 +52,32 @@ class PreflightTests(unittest.TestCase):
             work = Path(directory)
             bench = work / "benchmark"
             bench.mkdir()
-            (bench / "summary.json").write_text('{"per_kb": 12.5}', encoding="utf-8")
+            (bench / "summary.json").write_text('{"per_kb": 12.5, "engine": "kokoro"}', encoding="utf-8")
             self.assertEqual(load_kokoro_benchmark(work), 12.5)
+
+    def test_load_kokoro_benchmark_ignores_piper_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            bench = work / "benchmark"
+            bench.mkdir()
+            (bench / "summary.json").write_text('{"per_kb": 5.0, "engine": "piper"}', encoding="utf-8")
+            self.assertIsNone(load_kokoro_benchmark(work))
+
+    def test_suggested_command_includes_pdf_passthrough(self) -> None:
+        source = "# Doc\n\nBody.\n"
+        passthrough = SuggestPassthrough(
+            allow_partial_pdf=True,
+            pdf_engine="marker",
+            work=Path("/tmp/ra-work"),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            report = analyze_text(
+                Path("paper.pdf"), source, work=Path(directory), passthrough=passthrough
+            )
+        self.assertIn("--allow-partial-pdf", report.suggested_argv)
+        self.assertIn("--pdf-engine", report.suggested_argv)
+        self.assertIn("marker", report.suggested_argv)
+        self.assertIn("/tmp/ra-work", report.suggested_argv)
 
     def test_format_report_includes_quoted_run_line(self) -> None:
         source = "# Hi\n\nText.\n"
